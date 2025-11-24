@@ -86,6 +86,15 @@ app.use("/api/uploadNotes", uploadRoutes);
 app.use("/api/quizzes", quizRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 
+// Keep-alive endpoint for preventing Render spin-down
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 // Serve built frontend in production
 if (process.env.NODE_ENV === "production") {
   const staticPath = path.join(__dirname, "public");

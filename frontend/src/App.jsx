@@ -25,8 +25,9 @@ const TabButton = ({ tab, active, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${active ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
-        }`}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${
+        active ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
+      }`}
     >
       <Icon className="w-5 h-5" />
       {tab.label}
@@ -138,12 +139,7 @@ function App() {
   const renderContent = () => {
     const contentMap = {
       dashboard: <Dashboard sessions={sessions} />,
-      recommendations: (
-        <Recommendations
-          sessions={sessions}
-          showToast={showToast}
-        />
-      ),
+      recommendations: <Recommendations sessions={sessions} showToast={showToast} />,
       quiz: <Quiz showToast={showToast} />,
       tracker: (
         <div className="space-y-6">
@@ -180,24 +176,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-40">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <BookOpen className="w-5 h-5 text-white" />
-          </div>
-          <h1 className="text-lg font-bold text-gray-900">AI Study Tracker</h1>
-        </div>
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </div>
+    <div className="min-h-screen flex bg-gray-50 relative">
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div
           className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
@@ -206,10 +187,11 @@ function App() {
       )}
 
       {/* Sidebar */}
-      <aside className={`
-        w-64 h-screen fixed flex-shrink-0 bg-white border-r border-gray-200 flex flex-col z-50 transition-transform duration-300
-        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
+      <aside
+        className={`fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col z-50 transform transition-transform duration-300 md:translate-x-0 ${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="p-6 flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
             <BookOpen className="w-6 h-6 text-white" />
@@ -254,13 +236,30 @@ function App() {
 
           <button
             onClick={user ? handleLogout : () => setShowAuthPage(true)}
-            className={`mt-4 w-full ${user ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"
-              } text-white py-2 rounded-lg transition-all font-semibold`}
+            className={`mt-4 w-full ${
+              user ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"
+            } text-white py-2 rounded-lg transition-all font-semibold`}
           >
             {user ? "Logout" : "Login"}
           </button>
         </div>
       </aside>
+
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between z-50">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <BookOpen className="w-5 h-5 text-white" />
+          </div>
+          <h1 className="text-lg font-bold text-gray-900">AI Study Tracker</h1>
+        </div>
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
 
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-8 overflow-auto md:ml-64 pt-20 md:pt-8">{renderContent()}</main>
