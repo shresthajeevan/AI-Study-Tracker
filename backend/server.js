@@ -19,11 +19,11 @@ dotenv.config();
 const app = express();
 app.set("trust proxy", 1);
 
-// __dirname for ES modules
+// __dirname fix for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Allowed origins for CORS
+// Allowed CORS origins
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
@@ -45,10 +45,10 @@ app.use(
 
 app.use(express.json());
 
-// Serve uploads folder
+// Serve uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// MongoDB connection
+// MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
@@ -97,29 +97,33 @@ app.use("/api/quizzes", quizRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 
 
-// Root endpoint
+// Root API endpoint
 app.get("/", (req, res) => {
   res.json({ message: "AI Study Tracker API is running!" });
 });
 
 
 // ======================
-// STATIC FRONTEND (Render)
+// STATIC FRONTEND (Render Deployment)
 // ======================
 if (process.env.NODE_ENV === "production") {
   const staticPath = path.join(__dirname, "public");
 
-  // Serve built frontend
+  // Serve Vue/React/Frontend build
   app.use(express.static(staticPath));
 
-  // Express 5 wildcard (Node 22 compatible)
-  app.get("/*", (req, res) => {
-    res.sendFile(path.join(staticPath, "index.html"));
+  // Express 5 compatible fallback (NO WILDCARD ROUTE)
+  app.use((req, res, next) => {
+    // Only handle browser navigation requests (HTML)
+    if (req.method === "GET" && !req.path.startsWith("/api")) {
+      return res.sendFile(path.join(staticPath, "index.html"));
+    }
+    next();
   });
 }
 
 
-// 404 for APIs only
+// API 404
 app.use((req, res) => {
   res.status(404).json({ error: "Not Found" });
 });
@@ -127,12 +131,12 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error("🔥 Server Error:", err.stack);
   res.status(500).json({ error: "Something went wrong!" });
 });
 
 
-// Server listener
+// Start server
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
