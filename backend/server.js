@@ -106,13 +106,20 @@ if (process.env.NODE_ENV === "production") {
   // Serve Vue/React/Frontend build
   app.use(express.static(staticPath));
 
-  // SPA fallback - serve index.html for all non-API routes
-  app.get("*", (req, res) => {
-    // Skip API routes
-    if (req.path.startsWith("/api") || req.path === "/health") {
-      return res.status(404).json({ error: "Not Found" });
+  // SPA fallback - catch all non-API routes and serve index.html
+  app.use((req, res, next) => {
+    // Let API routes pass through to 404 handler
+    if (req.path.startsWith("/api") || req.path === "/health" || req.path.startsWith("/uploads")) {
+      return next();
     }
-    res.sendFile(path.join(staticPath, "index.html"));
+    
+    // For all other routes, serve the SPA index.html
+    res.sendFile(path.join(staticPath, "index.html"), (err) => {
+      if (err) {
+        console.error("Error serving index.html:", err);
+        res.status(500).json({ error: "Failed to load application" });
+      }
+    });
   });
 } else {
   // Development root endpoint
@@ -122,13 +129,9 @@ if (process.env.NODE_ENV === "production") {
 }
 
 
-// API 404 - only for routes not caught above
+// API 404 handler
 app.use((req, res) => {
-  if (req.path.startsWith("/api")) {
-    res.status(404).json({ error: "API endpoint not found" });
-  } else {
-    res.status(404).json({ error: "Not Found" });
-  }
+  res.status(404).json({ error: "Not Found" });
 });
 
 
