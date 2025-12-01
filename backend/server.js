@@ -97,12 +97,6 @@ app.use("/api/quizzes", quizRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 
 
-// Root API endpoint
-app.get("/", (req, res) => {
-  res.json({ message: "AI Study Tracker API is running!" });
-});
-
-
 // ======================
 // STATIC FRONTEND (Render Deployment)
 // ======================
@@ -112,20 +106,29 @@ if (process.env.NODE_ENV === "production") {
   // Serve Vue/React/Frontend build
   app.use(express.static(staticPath));
 
-  // Express 5 compatible fallback (NO WILDCARD ROUTE)
-  app.use((req, res, next) => {
-    // Only handle browser navigation requests (HTML)
-    if (req.method === "GET" && !req.path.startsWith("/api")) {
-      return res.sendFile(path.join(staticPath, "index.html"));
+  // SPA fallback - serve index.html for all non-API routes
+  app.get("*", (req, res) => {
+    // Skip API routes
+    if (req.path.startsWith("/api") || req.path === "/health") {
+      return res.status(404).json({ error: "Not Found" });
     }
-    next();
+    res.sendFile(path.join(staticPath, "index.html"));
+  });
+} else {
+  // Development root endpoint
+  app.get("/", (req, res) => {
+    res.json({ message: "AI Study Tracker API is running!" });
   });
 }
 
 
-// API 404
+// API 404 - only for routes not caught above
 app.use((req, res) => {
-  res.status(404).json({ error: "Not Found" });
+  if (req.path.startsWith("/api")) {
+    res.status(404).json({ error: "API endpoint not found" });
+  } else {
+    res.status(404).json({ error: "Not Found" });
+  }
 });
 
 
