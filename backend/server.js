@@ -33,7 +33,7 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: function (origin, callback) {
+    origin(origin, callback) {
       if (!origin) return callback(null, true);
       if (process.env.NODE_ENV === "production") return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
@@ -55,9 +55,9 @@ mongoose
   .catch((err) => console.error("❌ MongoDB error:", err));
 
 
-// =========================
-//  HEALTH CHECK FIRST!!!
-// =========================
+// ======================
+// HEALTH CHECK FIRST
+// ======================
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "healthy",
@@ -97,27 +97,29 @@ app.use("/api/quizzes", quizRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 
 
-// Basic root endpoint
+// Root endpoint
 app.get("/", (req, res) => {
   res.json({ message: "AI Study Tracker API is running!" });
 });
 
 
-// =========================
-//  STATIC FRONTEND (Render)
-// =========================
+// ======================
+// STATIC FRONTEND (Render)
+// ======================
 if (process.env.NODE_ENV === "production") {
   const staticPath = path.join(__dirname, "public");
+
+  // Serve built frontend
   app.use(express.static(staticPath));
 
-  // IMPORTANT: Fallback LAST
-  app.get("*", (req, res) => {
+  // Express 5 wildcard (Node 22 compatible)
+  app.get("/*", (req, res) => {
     res.sendFile(path.join(staticPath, "index.html"));
   });
 }
 
 
-// 404 (only for API routes, not SPA)
+// 404 for APIs only
 app.use((req, res) => {
   res.status(404).json({ error: "Not Found" });
 });
