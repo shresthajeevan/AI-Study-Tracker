@@ -4,6 +4,12 @@ An AI-powered study tracker web application built with React.js, Tailwind CSS, E
 
 ---
 
+## 🚀 Live Demo
+
+**Deployed Application:** https://ai-study-tracker.onrender.com/
+
+---
+
 ## ✨ Features
 
 ### 🔐 User Authentication
